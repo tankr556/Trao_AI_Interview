@@ -1,0 +1,9 @@
+{
+  "name": "trao-ai-prep-kit",
+  "version": "1.0.0",
+  "description": "AI Interview Prep Kit Root Package",
+  "scripts": {
+    "evaluate": "npx --prefix backend tsx backend/src/evaluate.ts",
+    "test": "cd backend && npm run test"
+  }
+}

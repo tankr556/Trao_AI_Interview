@@ -1,0 +1,16 @@
+{
+  "cases": [
+    {
+      "id": "case-01",
+      "jd": "Senior Backend Engineer\n\nWe are looking for a Senior Node.js and TypeScript engineer with 5+ years of experience in system design, MongoDB schema optimization, and REST API development. Must have strong experience mentoring junior developers.",
+      "company_url": "http://localhost:8099/acme/",
+      "days": 5
+    },
+    {
+      "id": "case-02",
+      "jd": "Frontend Developer\n\nLooking for React and Tailwind CSS developers with responsive design skills.",
+      "company_url": "https://example.com",
+      "days": 3
+    }
+  ]
+}

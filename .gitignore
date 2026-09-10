@@ -1,0 +1,16 @@
+# Root gitignore
+node_modules/
+dist/
+.next/
+.env
+.env.local
+*.log
+
+# Subfolders node_modules & build dirs
+backend/node_modules/
+backend/dist/
+backend/.env
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
