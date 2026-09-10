@@ -13,6 +13,14 @@ export default function Home() {
   const [practiceIndex, setPracticeIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
 
+  React.useEffect(() => {
+    // Auth Guard: If signed out, redirect to /login
+    const token = localStorage.getItem('trao_token');
+    if (!token) {
+      window.location.href = '/login';
+    }
+  }, []);
+
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!jdText.trim()) return;
