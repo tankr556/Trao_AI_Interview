@@ -42,27 +42,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </div>
             
             <nav className="flex items-center gap-4 text-sm font-medium">
-              <a href="/" className="text-slate-400 hover:text-white transition-colors">Dashboard</a>
-              
-              {user ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-indigo-300 border border-slate-700 font-semibold">
-                    👤 {user.name || user.email}
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    className="px-3 py-1.5 rounded-lg bg-rose-600/20 text-rose-300 border border-rose-500/30 font-semibold hover:bg-rose-600 hover:text-white transition-colors text-xs"
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <a
-                  href="/login"
-                  className="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition-colors shadow-md shadow-indigo-600/20"
-                >
-                  Login / Register
-                </a>
+              {user && (
+                <>
+                  <a href="/" className="text-slate-400 hover:text-white transition-colors">Dashboard</a>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-indigo-300 border border-slate-700 font-semibold">
+                      👤 {user.name || user.email}
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      className="px-3 py-1.5 rounded-lg bg-rose-600/20 text-rose-300 border border-rose-500/30 font-semibold hover:bg-rose-600 hover:text-white transition-colors text-xs"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </>
               )}
             </nav>
           </div>
