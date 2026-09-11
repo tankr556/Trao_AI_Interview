@@ -27,7 +27,11 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
     });
 
     if (existingKit) {
-      return res.json({ message: 'Kit already exists for this role.', kit: existingKit });
+      if (existingKit.schedule?.days_available !== numDays) {
+        existingKit.schedule = allocateSchedule(existingKit.questions, existingKit.role.requirements, numDays);
+        await existingKit.save();
+      }
+      return res.json({ message: 'Kit retrieved for this role.', kit: existingKit });
     }
 
     // Save initial draft kit
