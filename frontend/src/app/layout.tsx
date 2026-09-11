@@ -63,22 +63,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </nav>
           </div>
         </header>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-indigo-300 border border-slate-700 font-semibold">
-                      👤 {user.name || user.email}
-                    </span>
-                    <button
-                      onClick={handleLogout}
-                      className="px-3 py-1.5 rounded-lg bg-rose-600/20 text-rose-300 border border-rose-500/30 font-semibold hover:bg-rose-600 hover:text-white transition-colors text-xs"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </>
-              )}
-            </nav>
-          </div>
-        </header>
         <main className="max-w-7xl mx-auto px-4 py-8">
           {children}
         </main>
