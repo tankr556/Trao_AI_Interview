@@ -20,7 +20,7 @@ export default function LoginPage() {
     setSuccessMsg('');
     setLoading(true);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://trao-ai-interview.onrender.com/api';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
     const endpoint = isRegister ? `${baseUrl}/auth/register` : `${baseUrl}/auth/login`;
 
     try {
