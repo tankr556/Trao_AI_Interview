@@ -18,7 +18,21 @@ export default function Home() {
     const token = localStorage.getItem('trao_token');
     if (!token) {
       window.location.href = '/login';
+      return;
     }
+
+    // Auto-load user's existing saved kit on mount
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    fetch(`${baseUrl}/kits`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.kits && data.kits.length > 0) {
+          setGeneratedKit(data.kits[0]);
+        }
+      })
+      .catch(err => console.error(err));
   }, []);
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -118,6 +132,33 @@ export default function Home() {
       )
     };
     setGeneratedKit(updated);
+  };
+
+  const deleteQuestion = (qId: string) => {
+    if (!generatedKit) return;
+    const updatedQuestions = generatedKit.questions.filter((q: any) => q.id !== qId);
+    setGeneratedKit({ ...generatedKit, questions: updatedQuestions });
+  };
+
+  const addCustomQuestion = () => {
+    if (!generatedKit) return;
+    const newId = `q${generatedKit.questions.length + 1}`;
+    const newQ = {
+      id: newId,
+      requirement_ids: ['r1'],
+      category: 'technical',
+      prompt: 'New custom interview question (click to edit)',
+      answer_outline: 'Provide key response points here',
+      difficulty: 2
+    };
+    setGeneratedKit({ ...generatedKit, questions: [...generatedKit.questions, newQ] });
+  };
+
+  const setCardConfidence = (confidence: number) => {
+    if (!generatedKit || !generatedKit.flashcards[practiceIndex]) return;
+    const updatedFlashcards = [...generatedKit.flashcards];
+    updatedFlashcards[practiceIndex].confidence = confidence;
+    setGeneratedKit({ ...generatedKit, flashcards: updatedFlashcards });
   };
 
   return (
@@ -258,9 +299,15 @@ export default function Home() {
           {/* Tab 2: Question Bank */}
           {activeTab === 'questions' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-xl font-bold text-white">Categorized Question Bank</h3>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={addCustomQuestion}
+                    className="px-3 py-1.5 text-xs font-semibold bg-emerald-900/60 border border-emerald-700/50 hover:bg-emerald-800/60 text-emerald-200 rounded-lg transition-colors"
+                  >
+                    + Add Question
+                  </button>
                   <button
                     onClick={() => handleRegenerateSection('technical')}
                     className="px-3 py-1.5 text-xs font-semibold bg-indigo-900/60 border border-indigo-700/50 hover:bg-indigo-800/60 text-indigo-200 rounded-lg"
@@ -288,14 +335,22 @@ export default function Home() {
                         </span>
                         <span className="text-xs text-slate-500">Difficulty: {q.difficulty}/3</span>
                       </div>
-                      <button
-                        onClick={() => togglePinQuestion(q.id)}
-                        className={`text-xs px-2.5 py-1 rounded font-semibold transition-colors ${
-                          q.isPinned ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
-                        }`}
-                      >
-                        {q.isPinned ? 'Pinned 📌' : 'Pin Item'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => togglePinQuestion(q.id)}
+                          className={`text-xs px-2.5 py-1 rounded font-semibold transition-colors ${
+                            q.isPinned ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          {q.isPinned ? 'Pinned 📌' : 'Pin Item'}
+                        </button>
+                        <button
+                          onClick={() => deleteQuestion(q.id)}
+                          className="text-xs px-2.5 py-1 rounded font-semibold bg-rose-950/60 text-rose-400 border border-rose-800/50 hover:bg-rose-900/60 transition-colors"
+                        >
+                          Delete 🗑️
+                        </button>
+                      </div>
                     </div>
                     <p className="font-semibold text-slate-100 text-base">{q.prompt}</p>
                     <div className="bg-slate-950 p-3.5 rounded-lg border border-slate-800/80">
@@ -317,20 +372,54 @@ export default function Home() {
               </div>
 
               {generatedKit.flashcards.length > 0 && (
-                <div
-                  onClick={() => setShowAnswer(!showAnswer)}
-                  className="bg-slate-900 border-2 border-indigo-500/40 hover:border-indigo-500 rounded-2xl p-8 min-h-[220px] flex flex-col justify-center items-center text-center cursor-pointer transition-all shadow-xl"
-                >
-                  {!showAnswer ? (
-                    <div className="space-y-4">
-                      <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest block">Question / Concept</span>
-                      <p className="text-xl font-medium text-white">{generatedKit.flashcards[practiceIndex]?.front}</p>
-                      <span className="text-xs text-slate-500 block pt-4">(Click card to reveal answer outline)</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block">Answer Outline</span>
-                      <p className="text-base text-slate-200">{generatedKit.flashcards[practiceIndex]?.back}</p>
+                <div className="space-y-4">
+                  <div
+                    onClick={() => setShowAnswer(!showAnswer)}
+                    className="bg-slate-900 border-2 border-indigo-500/40 hover:border-indigo-500 rounded-2xl p-8 min-h-[220px] flex flex-col justify-center items-center text-center cursor-pointer transition-all shadow-xl"
+                  >
+                    {!showAnswer ? (
+                      <div className="space-y-4">
+                        <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest block">Question / Concept</span>
+                        <p className="text-xl font-medium text-white">{generatedKit.flashcards[practiceIndex]?.front}</p>
+                        <span className="text-xs text-slate-500 block pt-4">(Click card to reveal answer outline)</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block">Answer Outline</span>
+                        <p className="text-base text-slate-200">{generatedKit.flashcards[practiceIndex]?.back}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {showAnswer && (
+                    <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">How confident do you feel on this topic?</span>
+                      <div className="flex justify-center gap-3">
+                        <button
+                          onClick={() => setCardConfidence(1)}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            generatedKit.flashcards[practiceIndex]?.confidence === 1 ? 'bg-rose-600 text-white' : 'bg-slate-800 text-rose-400 hover:bg-slate-700'
+                          }`}
+                        >
+                          Hard 🔴
+                        </button>
+                        <button
+                          onClick={() => setCardConfidence(2)}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            generatedKit.flashcards[practiceIndex]?.confidence === 2 ? 'bg-amber-600 text-white' : 'bg-slate-800 text-amber-400 hover:bg-slate-700'
+                          }`}
+                        >
+                          Medium 🟡
+                        </button>
+                        <button
+                          onClick={() => setCardConfidence(3)}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            generatedKit.flashcards[practiceIndex]?.confidence === 3 ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-emerald-400 hover:bg-slate-700'
+                          }`}
+                        >
+                          Easy 🟢
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
