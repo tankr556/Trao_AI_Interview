@@ -59,17 +59,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   Trao <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">AI Prep Kit</span>
                 </span>
               </Link>
-
-              {user && (
-                <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-300">
-                  <Link 
-                    href="/" 
-                    className="px-3 py-1.5 rounded-lg hover:bg-slate-800/60 hover:text-white transition-colors"
-                  >
-                    Dashboard
-                  </Link>
-                </nav>
-              )}
             </div>
             
             {/* Right: User Profile & Actions */}
