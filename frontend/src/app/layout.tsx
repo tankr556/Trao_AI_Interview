@@ -3,6 +3,7 @@
 import './globals.css';
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
@@ -36,15 +37,32 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
                 T
               </div>
-              <a href="/" className="font-bold text-xl tracking-tight text-white hover:text-indigo-300 transition-colors">
+              <Link href="/" className="font-bold text-xl tracking-tight text-white hover:text-indigo-300 transition-colors">
                 Trao <span className="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">AI Prep Kit</span>
-              </a>
+              </Link>
             </div>
             
             <nav className="flex items-center gap-4 text-sm font-medium">
               {user && (
                 <>
-                  <a href="/" className="text-slate-400 hover:text-white transition-colors">Dashboard</a>
+                  <Link href="/" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs px-3 py-1 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-500/40 font-semibold shadow-sm flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      {user.name || user.email}
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      className="px-3 py-1.5 rounded-lg bg-rose-600/20 text-rose-300 border border-rose-500/30 font-semibold hover:bg-rose-600 hover:text-white transition-colors text-xs"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </>
+              )}
+            </nav>
+          </div>
+        </header>
                   <div className="flex items-center gap-3">
                     <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-indigo-300 border border-slate-700 font-semibold">
                       👤 {user.name || user.email}
