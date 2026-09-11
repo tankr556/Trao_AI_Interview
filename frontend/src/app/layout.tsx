@@ -115,6 +115,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                       </div>
                     </>
                   )}
+                </div>
               ) : null}
             </div>
           </div>
