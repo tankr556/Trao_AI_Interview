@@ -82,10 +82,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   >
                     <div className="flex flex-col text-right hidden sm:block">
                       <span className="text-xs font-bold text-slate-200 max-w-[140px] truncate leading-tight">
-                        {user.name || 'User'}
-                      </span>
-                      <span className="text-[10px] text-slate-400 max-w-[140px] truncate leading-tight">
-                        {user.email}
+                        {user.name || user.email || 'User'}
                       </span>
                     </div>
 
