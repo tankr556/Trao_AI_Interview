@@ -115,15 +115,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                       </div>
                     </>
                   )}
-                </div>
-              ) : (
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg shadow-indigo-600/20 transition-all"
-                >
-                  Sign In
-                </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </header>
