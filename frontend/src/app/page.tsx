@@ -303,12 +303,6 @@ export default function Home() {
                 <h3 className="text-xl font-bold text-white">Categorized Question Bank</h3>
                 <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={addCustomQuestion}
-                    className="px-3 py-1.5 text-xs font-semibold bg-emerald-900/60 border border-emerald-700/50 hover:bg-emerald-800/60 text-emerald-200 rounded-lg transition-colors"
-                  >
-                    + Add Question
-                  </button>
-                  <button
                     onClick={() => handleRegenerateSection('technical')}
                     className="px-3 py-1.5 text-xs font-semibold bg-indigo-900/60 border border-indigo-700/50 hover:bg-indigo-800/60 text-indigo-200 rounded-lg"
                   >
@@ -335,22 +329,14 @@ export default function Home() {
                         </span>
                         <span className="text-xs text-slate-500">Difficulty: {q.difficulty}/3</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => togglePinQuestion(q.id)}
-                          className={`text-xs px-2.5 py-1 rounded font-semibold transition-colors ${
-                            q.isPinned ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          {q.isPinned ? 'Pinned 📌' : 'Pin Item'}
-                        </button>
-                        <button
-                          onClick={() => deleteQuestion(q.id)}
-                          className="text-xs px-2.5 py-1 rounded font-semibold bg-rose-950/60 text-rose-400 border border-rose-800/50 hover:bg-rose-900/60 transition-colors"
-                        >
-                          Delete 🗑️
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => togglePinQuestion(q.id)}
+                        className={`text-xs px-2.5 py-1 rounded font-semibold transition-colors ${
+                          q.isPinned ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {q.isPinned ? 'Pinned 📌' : 'Pin Item'}
+                      </button>
                     </div>
                     <p className="font-semibold text-slate-100 text-base">{q.prompt}</p>
                     <div className="bg-slate-950 p-3.5 rounded-lg border border-slate-800/80">
