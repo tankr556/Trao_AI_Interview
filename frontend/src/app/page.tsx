@@ -29,42 +29,76 @@ export default function Home() {
     setGeneratedKit(null);
     setCurrentStep('Extracting requirements from job description...');
 
+    const token = localStorage.getItem('trao_token');
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
     try {
       setTimeout(() => setCurrentStep('Crawling company site & discovering hiring paths...'), 1200);
       setTimeout(() => setCurrentStep('Generating categorized question bank (Technical, Behavioural)...'), 2500);
       setTimeout(() => setCurrentStep('Performing 2nd pass coverage check & schedule allocation...'), 3800);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/kits`, {
+      const res = await fetch(`${baseUrl}/kits`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ jd_text: jdText, company_url: companyUrl, days })
       });
 
       const data = await res.json();
-      
-      // Fallback client simulation if backend async generation is still processing or offline
-      if (data.kit_id || data.kit) {
-        // Poll for ready state
-        setTimeout(async () => {
-          const kitRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/kits/${data.kit_id}`);
-          const kitData = await kitRes.json();
-          if (kitData.kit) {
-            setGeneratedKit(kitData.kit);
-          }
-          setLoading(false);
-        }, 4500);
+
+      if (!res.ok) {
+        throw new Error(data.error?.message || 'Failed to generate prep kit.');
       }
-    } catch (err) {
+      
+      if (data.kit) {
+        setGeneratedKit(data.kit);
+        setLoading(false);
+      } else if (data.kit_id) {
+        // Poll for ready state
+        let attempts = 0;
+        const pollInterval = setInterval(async () => {
+          attempts++;
+          try {
+            const kitRes = await fetch(`${baseUrl}/kits/${data.kit_id}`, {
+              headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            });
+            const kitData = await kitRes.json();
+            if (kitData.kit && (kitData.kit.status === 'ready' || kitData.kit.questions?.length > 0)) {
+              setGeneratedKit(kitData.kit);
+              setLoading(false);
+              clearInterval(pollInterval);
+            } else if (kitData.kit?.status === 'failed' || attempts > 20) {
+              clearInterval(pollInterval);
+              setLoading(false);
+              if (kitData.kit?.status === 'failed') {
+                alert('Generation error: ' + (kitData.kit?.error_message || 'Pipeline failed'));
+              }
+            }
+          } catch (err) {
+            clearInterval(pollInterval);
+            setLoading(false);
+          }
+        }, 1500);
+      } else {
+        setLoading(false);
+      }
+    } catch (err: any) {
       console.error(err);
+      alert(err.message || 'Something went wrong while generating.');
       setLoading(false);
     }
   };
 
   const handleRegenerateSection = async (section: string) => {
     if (!generatedKit?._id) return;
+    const token = localStorage.getItem('trao_token');
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/kits/${generatedKit._id}/regenerate/${section}`, {
-        method: 'POST'
+      const res = await fetch(`${baseUrl}/kits/${generatedKit._id}/regenerate/${section}`, {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       const data = await res.json();
       if (data.kit) {
