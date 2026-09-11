@@ -98,16 +98,29 @@ function fallbackQuestionGeneration(
   requirements.forEach((req, idx) => {
     const qId = `q${startIdCount + idx}`;
     const fId = `f${startIdCount + idx}`;
+    const textLower = req.text.toLowerCase();
 
-    let promptText = `Explain your practical experience with: ${req.text}`;
-    let outline = `Candidate should cover practical usage, challenges faced, and trade-offs regarding ${req.text}.`;
+    let promptText = `How do you structure and optimize performance when working with ${req.text}?`;
+    let outline = `Candidate should cover architectural principles, common pitfalls, performance optimizations, and hands-on experience with ${req.text}.`;
 
-    if (category === 'behavioural') {
-      promptText = `Tell me about a time you had to handle: ${req.text}. How did you navigate it?`;
-      outline = `Candidate should follow the STAR method (Situation, Task, Action, Result) focusing on ${req.text}.`;
-    } else if (category === 'system-design') {
-      promptText = `How would you design a scalable system leveraging or addressing: ${req.text}?`;
-      outline = `Candidate should outline architecture, data flow, bottlenecks, and redundancy for ${req.text}.`;
+    if (textLower.includes('react')) {
+      promptText = `Explain how React's Virtual DOM diffing algorithm works, and how custom Hooks along with useMemo/useCallback help prevent unnecessary re-renders in large applications.`;
+      outline = `1. Virtual DOM reconciliation process & key props importance.\n2. Using useMemo & useCallback to memoize expensive computations/callbacks.\n3. Custom Hook pattern for encapsulating reusable stateful logic.`;
+    } else if (textLower.includes('node')) {
+      promptText = `How does Node.js handle asynchronous non-blocking I/O operations under the hood using the Event Loop and Libuv thread pool?`;
+      outline = `1. Explanation of Event Loop phases (Timers, Poll, Check, Close).\n2. Role of Libuv thread pool for disk I/O and cryptographic operations.\n3. Best practices to avoid blocking the main thread.`;
+    } else if (textLower.includes('mongo') || textLower.includes('database')) {
+      promptText = `Compare MongoDB Indexing strategies (Single field, Compound, Text indexes). How do you debug slow queries using explain()?`;
+      outline = `1. Creating compound indexes matching Equality-Sort-Range (ESR) rule.\n2. Reading executionStats from db.collection.explain('executionStats').\n3. Memory management, indexing overhead, and covered queries.`;
+    } else if (textLower.includes('rest') || textLower.includes('api')) {
+      promptText = `How do you design a secure, versioned RESTful API with proper JWT authentication, rate limiting, and standardized error handling?`;
+      outline = `1. Stateless JWT authentication flow & Refresh tokens stored in HttpOnly cookies.\n2. Middleware rate limiting to prevent abuse.\n3. Standardized error response JSON format (status, error_code, message).`;
+    } else if (textLower.includes('aws') || textLower.includes('cloud')) {
+      promptText = `Walk through your process for deploying a Node.js/React application on AWS (e.g. EC2 / ECS / S3 + CloudFront). How do you manage secrets?`;
+      outline = `1. Host React static bundle on S3 + CloudFront CDN for low latency.\n2. Node.js backend container/EC2 behind Application Load Balancer (ALB).\n3. Storing secrets securely in AWS Secrets Manager or Environment Variables.`;
+    } else if (category === 'behavioural' || textLower.includes('agile') || textLower.includes('collaboration')) {
+      promptText = `Describe a challenging situation where project requirements changed rapidly or a critical bug occurred in production. How did you handle it?`;
+      outline = `1. Situation & Context description.\n2. Actions taken using STAR method (Communication, Root cause analysis, Escalation).\n3. Clear measurable result and lessons learned.`;
     }
 
     questions.push({
@@ -121,7 +134,7 @@ function fallbackQuestionGeneration(
 
     flashcards.push({
       id: fId,
-      front: `[${category.toUpperCase()}] Key concept for: ${req.text}`,
+      front: `[${category.toUpperCase()}] ${req.text}: ${promptText}`,
       back: outline,
       requirement_ids: [req.id],
       confidence: 0

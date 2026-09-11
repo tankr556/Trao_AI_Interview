@@ -84,58 +84,55 @@ ${jdText}
 }
 
 function fallbackExtraction(jdText: string): ExtractedRole {
-  const lines = jdText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   const requirements: z.infer<typeof RequirementSchemaZod>[] = [];
   let reqCount = 1;
 
-  let title = 'Software Engineer';
-  if (lines.length > 0) {
-    title = lines[0].substring(0, 50);
-  }
+  const techKeywords = [
+    { name: 'React.js & Frontend State Management', pattern: /react|frontend|next\.js|vue|angular|javascript|typescript/i, kind: 'technical' },
+    { name: 'Node.js & Express Async Architecture', pattern: /node|express|nest|backend|server/i, kind: 'technical' },
+    { name: 'MongoDB & Database Optimization', pattern: /mongo|nosql|database|sql|postgres|mysql/i, kind: 'technical' },
+    { name: 'RESTful API Security & Microservices', pattern: /rest|api|graphql|microservices/i, kind: 'technical' },
+    { name: 'AWS Infrastructure & Cloud Deployment', pattern: /aws|cloud|docker|kubernetes|devops|s3|ec2/i, kind: 'technical' },
+    { name: 'Agile Team Collaboration & Problem Solving', pattern: /team|communication|agile|scrum|leadership/i, kind: 'behavioural' }
+  ];
 
-  for (const line of lines) {
-    if (line.length < 5) continue;
-    const lower = line.toLowerCase();
-    
-    // Quick heuristic extraction
-    if (
-      lower.includes('experience') || 
-      lower.includes('skill') || 
-      lower.includes('proficient') || 
-      lower.includes('knowledge') || 
-      lower.includes('require') || 
-      lower.includes('ability') || 
-      lower.includes('degree') ||
-      line.startsWith('-') ||
-      line.startsWith('•')
-    ) {
-      const isNice = lower.includes('bonus') || lower.includes('nice') || lower.includes('preferred') || lower.includes('plus');
-      const isBehavioural = lower.includes('team') || lower.includes('communication') || lower.includes('mentoring') || lower.includes('lead');
-      const isDomain = lower.includes('finance') || lower.includes('healthcare') || lower.includes('e-commerce');
-
+  techKeywords.forEach(tk => {
+    if (tk.pattern.test(jdText)) {
       requirements.push({
         id: `r${reqCount++}`,
-        text: line.replace(/^[-•*]\s*/, ''),
-        kind: isBehavioural ? 'behavioural' : isDomain ? 'domain' : 'technical',
-        priority: isNice ? 'nice' : 'must'
+        text: tk.name,
+        kind: tk.kind as any,
+        priority: 'must'
       });
     }
-  }
+  });
 
-  // Handle thin JD case
-  if (requirements.length === 0 && lines.length > 0) {
-    requirements.push({
-      id: 'r1',
-      text: lines.join(' ').substring(0, 150),
-      kind: 'technical',
-      priority: 'must'
+  // If no tech keywords matched, fallback to line parsing
+  if (requirements.length === 0) {
+    const lines = jdText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    lines.forEach((line) => {
+      requirements.push({
+        id: `r${reqCount++}`,
+        text: line.substring(0, 100),
+        kind: 'technical',
+        priority: 'must'
+      });
     });
   }
 
+  // Determine Title
+  let title = 'Full Stack Developer';
+  if (/full\s*stack/i.test(jdText)) title = 'Full Stack Developer';
+  else if (/frontend/i.test(jdText)) title = 'Frontend Engineer';
+  else if (/backend/i.test(jdText)) title = 'Backend Engineer';
+
   return {
-    title: title || 'Software Engineer',
-    seniority: 'Mid-Senior',
-    responsibilities: lines.slice(1, 4),
+    title,
+    seniority: /3\+\s*years|senior/i.test(jdText) ? 'Senior (3+ Years)' : 'Mid-Level',
+    responsibilities: [
+      'Design, build, and maintain scalable web applications and REST APIs.',
+      'Collaborate with cross-functional teams to deliver high quality features.'
+    ],
     requirements
   };
 }
